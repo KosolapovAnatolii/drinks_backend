@@ -9,30 +9,23 @@ exports.register = async (req, res) => {
   try {
     const hashedPassword = await bcrypt.hash(password, 10);
     const user = await User.create({ email, password: hashedPassword });
-    res.status(201).json({ message: 'User created', userId: user._id });
+    const token = jwt.sign({ userId: user._id }, JWT_SECRET, { expiresIn: '7d' });
+    res.status(201).json({ message: 'User created', token});
   } catch (err) {
     res.status(400).json({ error: 'User already exists' });
   }
 };
 
-exports.test = async (req, res) => {
-  const { msg } = req.body;
-  try {
-    console.log(msg);
-    res.status(201).json({ message: 'Your message recieved' });
-  } catch (err) {
-    res.status(400).json({ error: 'Error with message from. frontend' });
-  }
-};
+// TODO: push updates and deploy to render
 
 exports.login = async (req, res) => {
   const { email, password } = req.body;
   try {
     const user = await User.findOne({ email });
-    if (!user) return res.status(400).json({ error: 'Invalid credentials' });
+    if (!user) return res.status(400).json({ error: 'Invalid email address' });
 
     const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch) return res.status(400).json({ error: 'Invalid credentials' });
+    if (!isMatch) return res.status(400).json({ error: 'Invalid password' });
 
     const token = jwt.sign({ userId: user._id }, JWT_SECRET, { expiresIn: '7d' });
     res.json({ token });
