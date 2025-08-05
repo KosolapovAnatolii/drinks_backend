@@ -36,7 +36,7 @@ exports.getDrinks = async (req, res) => {
   const query = { user: req.userId }
 
   const { category } = req.query;
-  if (category) query.categoy = category;
+  if (category) query.category = category;
 
   try {
     const drinks = await Drink.find(query);
