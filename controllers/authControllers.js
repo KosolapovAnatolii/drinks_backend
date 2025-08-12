@@ -16,8 +16,6 @@ exports.register = async (req, res) => {
   }
 };
 
-// TODO: push updates and deploy to render
-
 exports.login = async (req, res) => {
   const { email, password } = req.body;
   try {

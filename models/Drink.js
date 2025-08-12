@@ -1,9 +1,10 @@
 const mongoose = require('mongoose');
 
 const drinkSchema = new mongoose.Schema({
-  category: String, // whiskey, bourbon etc
+  category: { type: String, required: true }, // whiskey, bourbon etc
   photo: String,
-  name: String,
+  name: { type: String, required: true },
+  slug: { type: String, required: true, unique: true },
   age: Number,
   strength: Number,
   rating: Number,

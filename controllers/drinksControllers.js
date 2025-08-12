@@ -1,4 +1,5 @@
 const Drink = require('../models/Drink');
+const getUniqueSlug = require('../helpers/getUniqueSlug');
 
 exports.addDrink = async (req, res) => {
   const { 
@@ -16,10 +17,13 @@ exports.addDrink = async (req, res) => {
   }
 
   try {
+    const slug = await getUniqueSlug(name);
+
     const drink = await Drink.create({
       category,
       photo,
       name,
+      slug,
       age,
       strength,
       rating,
@@ -48,12 +52,14 @@ exports.getDrinks = async (req, res) => {
 
 exports.getDrink =  async (req, res) => {
   try {
-    const drink = await Drink.findOne({ _id: req.params.id, user: req.userId });
+    const drink = await Drink.findOne({ slug: req.params.slug, user: req.userId });
     if (!drink) {
       return res.status(404).json({ error: 'Drink not found' })
     };
     res.json(drink);
   } catch (err) {
-    res.status(400).json({ error: 'Invalid ID format' });
+    res.status(400).json({ error: 'Invalid slug format' });
   }
 };
+
+//TODO: add remove and edit drink functions

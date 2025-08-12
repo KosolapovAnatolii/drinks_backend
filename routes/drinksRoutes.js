@@ -5,6 +5,6 @@ const auth = require('../middleware/auth');
 
 router.post('/', auth, drinksController.addDrink);
 router.get('/', auth, drinksController.getDrinks);
-router.get('/:id', auth, drinksController.getDrink);
+router.get('/:slug', auth, drinksController.getDrink);
 
 module.exports = router;
