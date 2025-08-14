@@ -1,10 +1,12 @@
 const Drink = require('../models/Drink');
 const getUniqueSlug = require('../helpers/getUniqueSlug');
+const deleteImage = require('../helpers/cloudinaryApi');
 
 exports.addDrink = async (req, res) => {
   const { 
     category,
     photo,
+    public_id,
     name,
     age,
     strength,
@@ -22,6 +24,7 @@ exports.addDrink = async (req, res) => {
     const drink = await Drink.create({
       category,
       photo,
+      public_id,
       name,
       slug,
       age,
@@ -62,4 +65,23 @@ exports.getDrink =  async (req, res) => {
   }
 };
 
-//TODO: add remove and edit drink functions
+exports.deleteDrink = async (req, res) => {
+  try {
+    const drink = await Drink.findOne({ slug: req.params.slug, user: req.userId });
+
+    if (!drink) {
+      return res.status(404).json({ error: 'Drink not found' });
+    }
+
+    if (drink.public_id) {
+      await deleteImage(drink.public_id);
+    }
+
+    await Drink.deleteOne({ _id: drink._id });
+
+    res.json({ message: 'Drink deleted successfully' });
+
+  } catch (err) {
+    res.status(400).json({ error: 'Failed to delete drink' });
+  }
+};
