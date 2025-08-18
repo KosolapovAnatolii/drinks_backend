@@ -5,8 +5,18 @@ cloudinary.config({
   api_secret: process.env.CLOUDINARY_API_SECRET
 });
 
-async function deleteImage(public_id) {
+exports.deleteImage = async (public_id) => {
   await cloudinary.uploader.destroy(public_id);
 }
 
-module.exports = deleteImage;
+exports.uploadImage = async (file) => {
+  return new Promise((resolve, reject) => {
+    cloudinary.uploader.upload_stream(
+      { folder: 'drinks' },
+      (error, result) => {
+        if (error) return reject(error);
+        resolve(result);
+      }
+    ).end(file.buffer);
+  });
+}

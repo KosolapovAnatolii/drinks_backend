@@ -1,12 +1,12 @@
 const Drink = require('../models/Drink');
 const getUniqueSlug = require('../helpers/getUniqueSlug');
-const deleteImage = require('../helpers/cloudinaryApi');
+const cloudinaryApi = require('../helpers/cloudinaryApi');
 
 exports.addDrink = async (req, res) => {
   const { 
     category,
-    photo,
-    public_id,
+    // photo,
+    // public_id,
     name,
     age,
     strength,
@@ -14,17 +14,26 @@ exports.addDrink = async (req, res) => {
     description
   } = req.body;
 
+  let photoUrl = null;
+  let publicId = null;
+
   if (!category || !name) {
     return res.status(400).json({ error: 'Missing required fields' });
   }
 
   try {
+    if (req.file) {
+      const result = await cloudinaryApi.uploadImage(req.file);
+      photoUrl = result.secure_url;
+      publicId = result.public_id;
+    }
+
     const slug = await getUniqueSlug(name);
 
     const drink = await Drink.create({
       category,
-      photo,
-      public_id,
+      photo: photoUrl,
+      public_id: publicId,
       name,
       slug,
       age,
@@ -74,7 +83,7 @@ exports.deleteDrink = async (req, res) => {
     }
 
     if (drink.public_id) {
-      await deleteImage(drink.public_id);
+      await cloudinaryApi.deleteImage(drink.public_id);
     }
 
     await Drink.deleteOne({ _id: drink._id });
